@@ -1,0 +1,65 @@
+---
+title: "Stat 184 Project"
+authors: "ProjectTeam 13-3"
+date: "April 20, 2021"
+output: html_notebook
+---
+
+#### Load Packages
+```{r}
+library(tidyverse)
+library(data.table)
+```
+
+#### Read in Data and Convert Stat Files to Data Frames
+```{r}
+# Reads the .csv files
+MemFantasy <-
+  read.csv("Memorial_Fantasy.csv", header = TRUE)
+
+PGAFantasy <-
+  read.csv("PGA_Fantasy.csv", header = TRUE)
+
+SchFantasy <-
+  read.csv("Schwab_Fantasy.csv", header = TRUE)
+
+# Reads in the .txt files for further changes
+Mem_Start <-
+  fread("Memorial_Stats.txt", header = TRUE)
+
+PGA_Start <-
+  fread("PGA_Stats.txt", header = TRUE)
+
+Sch_Start <-
+  fread("Schwab_Stats.txt", header = TRUE)
+
+# Uses the "Start" to create a new table to tidy the data and add variable names
+MemStats <-
+  as.data.frame(matrix(Mem_Start$Data, ncol = 9, byrow = TRUE, dimnames = list(c(), c("Position", "Name", "Score", "PUTT", "ARG", "APP", "OTT", "T2G", "Total"))))
+
+PGAStats <-
+  as.data.frame(matrix(PGA_Start$Data, ncol = 9, byrow = TRUE, dimnames = list(c(), c("Position", "Name", "Score", "PUTT", "ARG", "APP", "OTT", "T2G", "Total"))))
+
+SchStats <-
+  as.data.frame(matrix(Sch_Start$Data, ncol = 9, byrow = TRUE, dimnames = list(c(), c("Position", "Name", "Score", "PUTT", "ARG", "APP", "OTT", "T2G", "Total"))))
+```
+
+#### Join Fantasy and Statistics to Create One Data Frame for Each of Three Tournaments
+```{r}
+MemFinal <-
+  MemStats %>%
+  inner_join(MemFantasy, by = "Name")
+PGAFinal <-
+  PGAStats %>%
+  inner_join(PGAFantasy, by = "Name")
+SchFinal <-
+  SchStats %>%
+  inner_join(SchFantasy, by = "Name")
+```
+
+#### Combine the Three Tournament Data Frames to Final
+```{r}
+TournamentsFinal <-
+  rbind(MemFinal, PGAFinal, SchFinal)
+```
+
