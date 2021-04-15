@@ -1,5 +1,5 @@
 ---
-title: "Stat 184 Project"
+title: "STAT 184 Final Project"
 authors: "ProjectTeam 13-3"
 date: "April 20, 2021"
 output: html_notebook
@@ -36,12 +36,15 @@ Sch_Start <-
 # Uses the "Start" to create a new table to tidy the data and add variable names
 MemStats <-
   as.data.frame(matrix(Mem_Start$Data, ncol = 9, byrow = TRUE, dimnames = list(c(), c("Position", "Name", "Score", "PUTT", "ARG", "APP", "OTT", "T2G", "Total"))))
+MemStats
 
 PGAStats <-
   as.data.frame(matrix(PGA_Start$Data, ncol = 9, byrow = TRUE, dimnames = list(c(), c("Position", "Name", "Score", "PUTT", "ARG", "APP", "OTT", "T2G", "Total"))))
+PGAStats
 
 SchStats <-
   as.data.frame(matrix(Sch_Start$Data, ncol = 9, byrow = TRUE, dimnames = list(c(), c("Position", "Name", "Score", "PUTT", "ARG", "APP", "OTT", "T2G", "Total"))))
+SchStats
 ```
 
 #### Join Fantasy and Statistics to Create One Data Frame for Each of Three Tournaments
@@ -49,17 +52,22 @@ SchStats <-
 MemFinal <-
   MemStats %>%
   inner_join(MemFantasy, by = "Name")
+MemFinal
+
 PGAFinal <-
   PGAStats %>%
   inner_join(PGAFantasy, by = "Name")
+PGAFinal
+
 SchFinal <-
   SchStats %>%
   inner_join(SchFantasy, by = "Name")
+SchFinal
 ```
 
 #### Combine the Three Tournament Data Frames to Final
 ```{r}
 TournamentsFinal <-
   rbind(MemFinal, PGAFinal, SchFinal)
+TournamentsFinal
 ```
-
