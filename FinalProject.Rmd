@@ -69,5 +69,25 @@ SchFinal
 ```{r}
 TournamentsFinal <-
   rbind(MemFinal, PGAFinal, SchFinal)
+
+```
+
+```{r}
+#rank
+TournamentsFinal <-TournamentsFinal%>%
+  group_by(Tournament)%>%
+  mutate(rank=rank(desc(Total)))
+```
+
+```{r}
+#Top10
+TournamentsFinal <-TournamentsFinal%>%
+  mutate(top10=ifelse(rank<=10,"yes","no"))
+```
+
+```{r}
 TournamentsFinal
 ```
+
+```
+
