@@ -80,7 +80,8 @@ TournamentsFinal <-TournamentsFinal%>%
   mutate(top10=ifelse(rank<=10,"yes","no"))
 
 #MadeCut
-
+TournamentsFinal <- TournamentsFinal %>%
+  mutate(MadeCut = ifelse(grepl("CUT", Position), "No", "Yes"))
 
 #Salary
 TournamentsFinal <-TournamentsFinal%>%
