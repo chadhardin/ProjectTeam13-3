@@ -95,6 +95,11 @@ TournamentsFinal <-TournamentsFinal%>%
   mutate(SalaryRange=ifelse(Salary>=10000 & Salary<11000 ,"10000s",SalaryRange))
 TournamentsFinal <-TournamentsFinal%>%
   mutate(SalaryRange=ifelse(Salary>=11000 & Salary<12000,"11000s",SalaryRange))
+  
+#tournplayed
+TournamentsFinal <-TournamentsFinal%>%
+  group_by(Name)%>%
+  mutate(tournplayed=n())
 
 
 TournamentsFinal
