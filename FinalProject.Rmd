@@ -70,10 +70,11 @@ SchFinal
 TournamentsFinal <-
   rbind(MemFinal, PGAFinal, SchFinal)
 
-#rank
+#Rank
 TournamentsFinal <-TournamentsFinal%>%
   group_by(Tournament)%>%
-  mutate(rank=rank(desc(Total)))
+  mutate(rank=rank(desc(Total),ties.method = "min"))
+
 
 #Top10
 TournamentsFinal <-TournamentsFinal%>%
@@ -101,6 +102,18 @@ TournamentsFinal <-TournamentsFinal%>%
 TournamentsFinal <-TournamentsFinal%>%
   group_by(Name)%>%
   mutate(tournplayed=n())
+  
+#Charles Schwab
+
+
+#Memorial
+
+
+#PGA Champ
+
+
+#Avg
+
 
 
 TournamentsFinal
