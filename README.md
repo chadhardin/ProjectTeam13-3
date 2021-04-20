@@ -1,2 +1,2 @@
 # ProjectTeam13-3
-# Chad H. // Saketh G. // Joey P.
+# Chad H. // Saketh (Sridhar) G. // Joey P.
