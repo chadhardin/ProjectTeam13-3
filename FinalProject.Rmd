@@ -70,24 +70,33 @@ SchFinal
 TournamentsFinal <-
   rbind(MemFinal, PGAFinal, SchFinal)
 
-```
-
-```{r}
 #rank
 TournamentsFinal <-TournamentsFinal%>%
   group_by(Tournament)%>%
   mutate(rank=rank(desc(Total)))
-```
 
-```{r}
 #Top10
 TournamentsFinal <-TournamentsFinal%>%
   mutate(top10=ifelse(rank<=10,"yes","no"))
-```
 
-```{r}
+#MadeCut
+
+
+#Salary
+TournamentsFinal <-TournamentsFinal%>%
+  mutate(SalaryRange=ifelse(Salary>=6000 & Salary<7000 ,"6000s","7000s"))
+TournamentsFinal <-TournamentsFinal%>%
+  mutate(SalaryRange=ifelse(Salary>=7000 & Salary<8000 ,"7000s",SalaryRange))
+TournamentsFinal <-TournamentsFinal%>%
+  mutate(SalaryRange=ifelse(Salary>=8000 & Salary<9000 ,"8000s",SalaryRange))
+TournamentsFinal <-TournamentsFinal%>%
+  mutate(SalaryRange=ifelse(Salary>=9000 & Salary<10000,"9000s",SalaryRange))
+TournamentsFinal <-TournamentsFinal%>%
+  mutate(SalaryRange=ifelse(Salary>=10000 & Salary<11000 ,"10000s",SalaryRange))
+TournamentsFinal <-TournamentsFinal%>%
+  mutate(SalaryRange=ifelse(Salary>=11000 & Salary<12000,"11000s",SalaryRange))
+
+
 TournamentsFinal
-```
-
 ```
 
