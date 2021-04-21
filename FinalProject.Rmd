@@ -65,11 +65,22 @@ SchFinal <-
 SchFinal
 ```
 
-#### Combine the Three Tournament Data Frames to Final
+#### Combining the tables and getting score for all three tournaments for each player to get the avg
 ```{r}
 TournamentsFinal <-
   rbind(MemFinal, PGAFinal, SchFinal)
 
+Scores <- 
+  TournamentsFinal %>%
+  select(Name, Tournament, Score) %>%
+  mutate(Score = gsub("E", 0, Score)) %>%
+  mutate(Score = as.numeric(Score)) %>%
+  spread(Tournament, Score)
+Scores
+```
+
+#### Adding the final variables
+```{r}
 #Rank
 TournamentsFinal <-TournamentsFinal%>%
   group_by(Tournament)%>%
@@ -103,18 +114,14 @@ TournamentsFinal <-TournamentsFinal%>%
   group_by(Name)%>%
   mutate(tournplayed=n())
   
-#Charles Schwab
-
-
-#Memorial
-
-
-#PGA Champ
-
+#Adding the scores for all the tournaments to each players name
+TournamentsFinal <-
+  TournamentsFinal %>%
+  left_join(Scores, by = "Name")
 
 #Avg
-
-
+TournamentsFinal$avg <-
+  round(rowMeans(TournamentsFinal[, c(19:21)], na.rm = TRUE), 1)
 
 TournamentsFinal
 ```
