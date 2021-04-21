@@ -65,11 +65,14 @@ SchFinal <-
 SchFinal
 ```
 
-#### Combining the tables and getting score for all three tournaments for each player to get the avg
+#### Combine the Three Tournament Data Frames to Final Data Frame
+###### During this chunk, we create the final data frame, TournamentsFinal, by using rbind to stack the rows from the three different tables. Next we created a new data frame, Scores, and use TournamentsFinal to spread where each person has a row with scores from the three tournaments. After this we needed to create the following variables: rank, top10, madecut, salary, tournplayed, the scores from the three tournaments, and their avg across the tournaments they've played. We used the rank function in order to give each person their rank. We then used that rank variable with an ifelse to add the variable top10 and if they were in the top10 if gave them a "Yes". Madecut uses a grepl with the key "CUT" to filter those who made the cut and those who didn't. Salary uses ifelse functions to determine their salary range. Tournplayed is a simple variable where we used a group_by and a summarise n() to find how many tournaments they played. The scores for each tournament were found earlier in the "Scores" data frame and joined in here. Finally the average is found by using rowMeans over the 3 variables for score from the three tournaments and rounded to 1 decimal. 
 ```{r}
+#Creating the Final Data Frame
 TournamentsFinal <-
   rbind(MemFinal, PGAFinal, SchFinal)
 
+#Creating a Scores data frame to easily transform scores and to use for avg later
 Scores <- 
   TournamentsFinal %>%
   select(Name, Tournament, Score) %>%
@@ -77,19 +80,15 @@ Scores <-
   mutate(Score = as.numeric(Score)) %>%
   spread(Tournament, Score)
 Scores
-```
 
-#### Adding the final variables
-```{r}
 #Rank
 TournamentsFinal <-TournamentsFinal%>%
   group_by(Tournament)%>%
   mutate(rank=rank(desc(Total),ties.method = "min"))
 
-
 #Top10
 TournamentsFinal <-TournamentsFinal%>%
-  mutate(top10=ifelse(rank<=10,"yes","no"))
+  mutate(top10=ifelse(rank<=10,"Yes","No"))
 
 #MadeCut
 TournamentsFinal <- TournamentsFinal %>%
