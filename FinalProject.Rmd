@@ -124,4 +124,20 @@ TournamentsFinal$avg <-
 
 TournamentsFinal
 ```
+### Exploratory Data Analysis (EDA)
+
+#### [Research Question Here]
+TODO: 
+Create a graph, 
+Include several sentences supporting explanation of graph
+
+#### What are the top 3 highest totals from each tournament?
+
+#### Research Question 2A
+
+#### Research Question 2B
+
+#### Research Question 3A
+
+#### Research Question 3B
 
