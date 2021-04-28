@@ -128,16 +128,7 @@ TournamentsFinal
 
 #### [Research Question Here]
 TODO: 
-Create a graph, 
-Include several sentences supporting explanation of graph
+Create a graph (min 1, max 3), 
+Include several sentences supporting an explanation of graph(s)
 
-#### What are the top 3 highest totals from each tournament?
-
-#### Research Question 2A
-
-#### Research Question 2B
-
-#### Research Question 3A
-
-#### Research Question 3B
-
+#### Research Question 2
