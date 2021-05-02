@@ -1,134 +1,104 @@
 ---
-title: "STAT 184 Final Project"
-authors: "ProjectTeam 13-3"
-date: "April 20, 2021"
-output: html_notebook
+title: "Stat 184 Project"
+author: "ProjectTeam13-3"
+date: "May 1, 2021"
+output: html_notebook 
 ---
 
+
+
 #### Load Packages
-```{r}
-library(tidyverse)
-library(data.table)
+```{r message=FALSE}
+library(tidyverse) 
 ```
 
-#### Read in Data and Convert Stat Files to Data Frames
+#### Read in Data and Convert Stat files to data frames
 ```{r}
-# Reads the .csv files
-MemFantasy <-
-  read.csv("Memorial_Fantasy.csv", header = TRUE)
+Memfan <- read.csv("Memorial_Fantasy.csv", header = T)
+Pgafan <- read.csv("PGA_Fantasy.csv", header = T)
+Schfan <- read.csv("Schwab_Fantasy.csv", header = T)
 
-PGAFantasy <-
-  read.csv("PGA_Fantasy.csv", header = TRUE)
+Memstat<- read.delim("Memorial_Stats.txt", header = T )
+Memstats <-  as.data.frame(matrix(Memstat$Data, ncol=9, byrow=TRUE))
 
-SchFantasy <-
-  read.csv("Schwab_Fantasy.csv", header = TRUE)
+Pgastat<- read.delim("PGA_Stats.txt", header = T)
+Pgastats <-  as.data.frame(matrix(Pgastat$Data, ncol=9, byrow=TRUE))
 
-# Reads in the .txt files for further changes
-Mem_Start <-
-  fread("Memorial_Stats.txt", header = TRUE)
-
-PGA_Start <-
-  fread("PGA_Stats.txt", header = TRUE)
-
-Sch_Start <-
-  fread("Schwab_Stats.txt", header = TRUE)
-
-# Uses the "Start" to create a new table to tidy the data and add variable names
-MemStats <-
-  as.data.frame(matrix(Mem_Start$Data, ncol = 9, byrow = TRUE, dimnames = list(c(), c("Position", "Name", "Score", "PUTT", "ARG", "APP", "OTT", "T2G", "Total"))))
-MemStats
-
-PGAStats <-
-  as.data.frame(matrix(PGA_Start$Data, ncol = 9, byrow = TRUE, dimnames = list(c(), c("Position", "Name", "Score", "PUTT", "ARG", "APP", "OTT", "T2G", "Total"))))
-PGAStats
-
-SchStats <-
-  as.data.frame(matrix(Sch_Start$Data, ncol = 9, byrow = TRUE, dimnames = list(c(), c("Position", "Name", "Score", "PUTT", "ARG", "APP", "OTT", "T2G", "Total"))))
-SchStats
+Schstat<- read.delim("Schwab_Stats.txt", header = T)
+Schstats <-  as.data.frame(matrix(Schstat$Data, ncol=9, byrow=TRUE))
 ```
 
 #### Join Fantasy and Statistics to Create One Data Frame for Each of Three Tournaments
+
 ```{r}
-MemFinal <-
-  MemStats %>%
-  inner_join(MemFantasy, by = "Name")
-MemFinal
+Memorial <- Memstats %>%
+  inner_join(Memfan, by=c("V2"= "Name"))
 
-PGAFinal <-
-  PGAStats %>%
-  inner_join(PGAFantasy, by = "Name")
-PGAFinal
+Pga <- Pgastats %>%
+  inner_join(Pgafan, by=c("V2"= "Name")) 
 
-SchFinal <-
-  SchStats %>%
-  inner_join(SchFantasy, by = "Name")
-SchFinal
+
+Schwab <- Schstats %>%
+  inner_join(Schfan, by=c("V2"= "Name"))
 ```
 
 #### Combine the Three Tournament Data Frames to Final Data Frame
 ###### During this chunk, we create the final data frame, TournamentsFinal, by using rbind to stack the rows from the three different tables. Next we created a new data frame, Scores, and use TournamentsFinal to spread where each person has a row with scores from the three tournaments. After this we needed to create the following variables: rank, top10, madecut, salary, tournplayed, the scores from the three tournaments, and their avg across the tournaments they've played. We used the rank function in order to give each person their rank. We then used that rank variable with an ifelse to add the variable top10 and if they were in the top10 if gave them a "Yes". Madecut uses a grepl with the key "CUT" to filter those who made the cut and those who didn't. Salary uses ifelse functions to determine their salary range. Tournplayed is a simple variable where we used a group_by and a summarise n() to find how many tournaments they played. The scores for each tournament were found earlier in the "Scores" data frame and joined in here. Finally the average is found by using rowMeans over the 3 variables for score from the three tournaments and rounded to 1 decimal. 
 ```{r}
-#Creating the Final Data Frame
-TournamentsFinal <-
-  rbind(MemFinal, PGAFinal, SchFinal)
+All <- rbind(Memorial, Pga, Schwab)
+names(All)[1:9] <- c('Position', 'Player', 'Score', 
+                          'Putt', 'ARG', 'App', 'OTT', 'T2G', 'Total')
 
-#Creating a Scores data frame to easily transform scores and to use for avg later
-Scores <- 
-  TournamentsFinal %>%
-  select(Name, Tournament, Score) %>%
-  mutate(Score = gsub("E", 0, Score)) %>%
-  mutate(Score = as.numeric(Score)) %>%
-  spread(Tournament, Score)
-Scores
+All$Score <- fct_recode(All$Score, "0" = "E") 
 
-#Rank
-TournamentsFinal <-TournamentsFinal%>%
-  group_by(Tournament)%>%
-  mutate(rank=rank(desc(Total),ties.method = "min"))
+Top10 <- 
+  All %>%
+  group_by(Tournament) %>%
+  mutate(Score = as.numeric(as.character(factor(Score)))) %>%
+  mutate(rank = rank(Score, ties.method = "min")) %>%
+  mutate(top10 = if_else(rank <= 10, 'Yes', 'No')) %>%
+  mutate(MadeCut = if_else(Position =='CUT', 'No', 'Yes')) %>%
+  mutate(SalaryRange = ifelse(grepl("6", Salary), "6000s",
+                       ifelse(grepl("7", Salary), "7000s",
+                       ifelse(grepl("8", Salary), "8000s",
+                       ifelse(grepl("9" , Salary), "9000s",
+                       ifelse(grepl("10", Salary), "10000s", "11000s"))))))
 
-#Top10
-TournamentsFinal <-TournamentsFinal%>%
-  mutate(top10=ifelse(rank<=10,"Yes","No"))
+TournPlayed <- All %>%
+  select((Player)) %>%
+  group_by(Player) %>%
+  mutate(tournplayed = n()) %>%
+  distinct()
 
-#MadeCut
-TournamentsFinal <- TournamentsFinal %>%
-  mutate(MadeCut = ifelse(grepl("CUT", Position), "No", "Yes"))
+AvgScore <- All %>%
+    select(Player, Score, Tournament) %>%
+    mutate(Score = as.numeric(as.character(factor(Score)))) %>%
+    spread(Tournament, Score) %>%
+    mutate(avg = round(rowMeans(.[2:4], na.rm=TRUE), 1))
 
-#Salary
-TournamentsFinal <-TournamentsFinal%>%
-  mutate(SalaryRange=ifelse(Salary>=6000 & Salary<7000 ,"6000s","7000s"))
-TournamentsFinal <-TournamentsFinal%>%
-  mutate(SalaryRange=ifelse(Salary>=7000 & Salary<8000 ,"7000s",SalaryRange))
-TournamentsFinal <-TournamentsFinal%>%
-  mutate(SalaryRange=ifelse(Salary>=8000 & Salary<9000 ,"8000s",SalaryRange))
-TournamentsFinal <-TournamentsFinal%>%
-  mutate(SalaryRange=ifelse(Salary>=9000 & Salary<10000,"9000s",SalaryRange))
-TournamentsFinal <-TournamentsFinal%>%
-  mutate(SalaryRange=ifelse(Salary>=10000 & Salary<11000 ,"10000s",SalaryRange))
-TournamentsFinal <-TournamentsFinal%>%
-  mutate(SalaryRange=ifelse(Salary>=11000 & Salary<12000,"11000s",SalaryRange))
-  
-#tournplayed
-TournamentsFinal <-TournamentsFinal%>%
-  group_by(Name)%>%
-  mutate(tournplayed=n())
-  
-#Adding the scores for all the tournaments to each players name
-TournamentsFinal <-
-  TournamentsFinal %>%
-  left_join(Scores, by = "Name")
+Results_Player <- Top10 %>%
+  left_join(TournPlayed, by = "Player")
 
-#Avg
-TournamentsFinal$avg <-
-  round(rowMeans(TournamentsFinal[, c(19:21)], na.rm = TRUE), 1)
-
-TournamentsFinal
+AllResults <- Results_Player %>%
+  left_join(AvgScore, by = "Player") %>%
+  mutate(Putt = as.numeric(Putt))
 ```
-### Exploratory Data Analysis (EDA)
 
-#### [Research Question Here]
-TODO: 
-Create a graph (min 1, max 3), 
-Include several sentences supporting an explanation of graph(s)
+### Research Questions
 
-#### Research Question 2
+#### Question 1
+#### Does a higher putting score correlate to an overall lower score when comparing all three tournaments?
+###### Since the variables Putt, ARG, App, etc. are the average of strokes gained in that aspect of the game, a higher number in Putt would mean that the players are getting to the green earlier and having to putt more. But does this mean that if a player has a 2 Putt score they will be closer to the top of the leaderboard?
+
+###### As shown below, each of the tournaments have a negative correlation between score and the Putt score. Even though there is a negative correlation does not mean that a player having a high putt score will be close to the top of the leaderboard. This would mainly depend on the tournament, since putting seems to be bigger factors in both the Charles Schwab and PGA Championship tournaments. So, if I was a player that was better at getting to the green and didn't have a higher Putt score I would want to join the Memorial tournament. Since with the data we have, it is the tournament that is least affected by Putt score. There is still a significant negative correlation, but it would give the player a better chance.
+
+```{r}
+AllResults %>%
+  ggplot(aes(x = Putt, y = Score)) +
+  geom_point(size = 1L, colour = "#0c4c8a") +
+  theme_minimal() +
+  facet_wrap(~Tournament)+
+  stat_smooth(method = "lm")
+```
+
+
