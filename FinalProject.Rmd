@@ -1,14 +1,12 @@
 ---
 title: "Stat 184 Project"
 author: "ProjectTeam13-3"
-date: "May 1, 2021"
+date: "May 2, 2021"
 output: html_notebook 
 ---
 
-
-
 #### Load Packages
-```{r message=FALSE}
+```{r message = FALSE}
 library(tidyverse) 
 ```
 
@@ -43,7 +41,7 @@ Schwab <- Schstats %>%
 ```
 
 #### Combine the Three Tournament Data Frames to Final Data Frame
-###### During this chunk, we create the final data frame, TournamentsFinal, by using rbind to stack the rows from the three different tables. Next we created a new data frame, Scores, and use TournamentsFinal to spread where each person has a row with scores from the three tournaments. After this we needed to create the following variables: rank, top10, madecut, salary, tournplayed, the scores from the three tournaments, and their avg across the tournaments they've played. We used the rank function in order to give each person their rank. We then used that rank variable with an ifelse to add the variable top10 and if they were in the top10 if gave them a "Yes". Madecut uses a grepl with the key "CUT" to filter those who made the cut and those who didn't. Salary uses ifelse functions to determine their salary range. Tournplayed is a simple variable where we used a group_by and a summarise n() to find how many tournaments they played. The scores for each tournament were found earlier in the "Scores" data frame and joined in here. Finally the average is found by using rowMeans over the 3 variables for score from the three tournaments and rounded to 1 decimal. 
+###### During this chunk, we create the final data frame, TournamentsFinal, by using rbind to stack the rows from the three different tables. Next, we created a new data frame, Scores, and use TournamentsFinal to spread where each person has a row with scores from the three tournaments. After this, we needed to create the following variables: rank, top10, madecut, salary, tournplayed, the scores from the three tournaments, and their averages across each of the tournaments they have played. The rank function was used in order to assign a rank to each person. That rank variable was then applied to an if-else in order to add the variable top10, assigning a "Yes" to anyone ranked in the top 10. Madecut uses a grepl with the key "CUT" to filter those who made the cut and those who didn't. Salary uses ifelse functions to determine their salary range. Tournplayed is a simple variable where we used a group_by and a summarise n() to find how many tournaments they played. The scores for each tournament were found earlier in the "Scores" data frame and joined in here. Finally the average is found by using rowMeans over the 3 variables for score from the three tournaments and rounded to 1 decimal. 
 ```{r}
 All <- rbind(Memorial, Pga, Schwab)
 names(All)[1:9] <- c('Position', 'Player', 'Score', 
@@ -101,4 +99,25 @@ AllResults %>%
   stat_smooth(method = "lm")
 ```
 
+#### Question 2
+#### Does a higher off-the-tee (OTT) score share a positive correlation with a better performance of the player for each of the three tournaments?
+
+The off-the-tee shot is by far the furthest shot taken on every hole, thus inferring that the distance covered here must be crucial to a player scoring well. As a result, a study was conducted to determine if a relationship exists between the OTT score and a each player's overall score in the three tournaments.
+
+In the figures below, each observation plotted is representative for a player's overall score versus their score off-the-tee. In this case of determining a better performance than another, we can define this as a combination of both the overall score which is more negative along with the OTT score which is more positive. As a result of their scoring being inverse of each other, a player who performed "better" on these graphs would be located more to the right and downward of his competitors. As one can observe here, each tournament shows weak, if any, signs of correlation. From these three plots, I would conclude that the Memorial Tournament shows the best signs of a negative correlation in this data. We can draw the inference that sending the ball further on the initial swing off-the-tee does have a positive impact on the player's overall score.
+```{r}
+ggplot(AllResults, aes(x = OTT, y = Score)) + 
+  geom_point(size = 1,
+             colour = "Dark Green", 
+             na.rm = T) + # Remove obs with missing values
+  stat_smooth(method = "lm", se = FALSE, 
+              color = 'Green', na.rm = T) + # Add a fitted linear regression line
+  theme(plot.title = element_text(hjust = 0.5), 
+        plot.subtitle = element_text(hjust = 0.5)) +
+  facet_wrap(~Tournament, ncol = 3) +
+  labs(title = "Relationship Between Player's \nOTT Score and Overall Performance",
+       subtitle = "Better performance can be identified closest to the bottom right",
+       x = "Off-the-Tee (OTT Score)", 
+       y = "Score")
+```
 
